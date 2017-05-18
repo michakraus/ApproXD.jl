@@ -9,8 +9,8 @@ using ApproXD, FactCheck
 facts("testing coefficient estimation on random data") do
 
 	d = Dict{Integer,Array{Float64,2}}()
-	for i=1:3 
-		d[i] = rand(i+1,i+1) 
+	for i=1:3
+		d[i] = rand(i+1,i+1)
 	end
 	 n1 = 2
 	 n2 = 3
@@ -37,7 +37,7 @@ facts("testing coefficient estimation on random data") do
 	 res1 = krons * y
 	 myres = getTensorCoef(d,y)
 
-	 @fact sum(abs(res1 - myres)) => roughly(0.0,atol=0.00001)
+	 @fact sum(abs(res1 - myres)) --> roughly(0.0,atol=0.00001)
 
 end
 
@@ -45,7 +45,7 @@ end
 
 
 facts("testing computation of coefficients") do
-	
+
 	# 3D approximation example
 
 	# bounds
@@ -84,8 +84,8 @@ facts("testing computation of coefficients") do
 	end
 
 	#  get a function
-	function f(x,y,z) 
-		(x+y).^2 + z.^z 
+	function f(x,y,z)
+		(x+y).^2 + z.^z
 	end
 
 	# compute function values so that
@@ -106,31 +106,31 @@ facts("testing computation of coefficients") do
 	 tol = 5e-6
 
 	 # check coefs are the same
-	@fact maximum(abs(coef1 - mycoef)) => roughly(0.0,atol=tol)
+	@fact maximum(abs(coef1 - mycoef)) --> roughly(0.0,atol=tol)
 
 	# approximate the function values on the original grid
 	# by using the basis in d. this is just reverse of getting coefs!
 	pred = getTensorCoef(d,mycoef)
-	@fact maximum(abs(pred - yvec)) => roughly(0.0,atol=tol)
+	@fact maximum(abs(pred - yvec)) --> roughly(0.0,atol=tol)
 
 	t1 = reshape(pred,npoints[1],npoints[2],npoints[3])
-	@fact maximum(abs(t1 .- y)) => roughly(0.0,atol=tol)
+	@fact maximum(abs(t1 .- y)) --> roughly(0.0,atol=tol)
 
 	# is that really doing what you want?
 	# you want B * coefs
 	B = kron(d[3],kron(d[2],d[1]))
 	pred2 = B * mycoef
-	@fact maximum(abs(pred2 - yvec)) => roughly(0.0,atol=tol)
+	@fact maximum(abs(pred2 - yvec)) --> roughly(0.0,atol=tol)
 
-	# predict usign the predict function	
+	# predict usign the predict function
 	pred = ApproXD.evalTensor3(d[3],d[2],d[1],mycoef)
-	@fact maximum(abs(pred - yvec)) => roughly(0.0,atol=tol)
+	@fact maximum(abs(pred - yvec)) --> roughly(0.0,atol=tol)
 
 end
 
 
 facts("testing 1D spline evaluating off grid") do
-	
+
 
 	ndims = 1
 
@@ -171,7 +171,7 @@ facts("testing 1D spline evaluating off grid") do
 	end
 
 	#  get a function
-	function f(x) 
+	function f(x)
 		x^3
 	end
 
@@ -197,7 +197,7 @@ facts("testing 1D spline evaluating off grid") do
 end
 
 facts("testing 1D spline extrapolation") do
-	
+
 
 	ndims = 1
 
@@ -238,7 +238,7 @@ facts("testing 1D spline extrapolation") do
 	end
 
 	#  get a function
-	function f(x) 
+	function f(x)
 		x^3
 	end
 
@@ -271,7 +271,7 @@ end
 
 
 facts("testing 2D tensorProduct evaluating off grid") do
-	
+
 	# 2D approximation example
 
 	ndims = 2
@@ -313,7 +313,7 @@ facts("testing 2D tensorProduct evaluating off grid") do
 	end
 
 	#  get a function
-	function f(x,y) 
+	function f(x,y)
 		sin(sqrt(x^2+y^2))
 	end
 
@@ -336,19 +336,19 @@ facts("testing 2D tensorProduct evaluating off grid") do
 	rval2 = lb[2] + 0.21
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact ApproXD.evalTensor2(b2,b1,mycoef) => roughly(f(rval1,rval2),atol=tol)
+	@fact ApproXD.evalTensor2(b2,b1,mycoef) --> roughly(f(rval1,rval2),atol=tol)
 
 	rval1 = ub[1] - 0.3
 	rval2 = ub[2] - 0.11
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact ApproXD.evalTensor2(b2,b1,mycoef) => roughly(f(rval1,rval2),atol=tol)
+	@fact ApproXD.evalTensor2(b2,b1,mycoef) --> roughly(f(rval1,rval2),atol=tol)
 
 end
 
 
 facts("testing 3D tensorProduct approximations") do
-	
+
 	# 3D approximation example
 
 	ndims = 3
@@ -390,7 +390,7 @@ facts("testing 3D tensorProduct approximations") do
 	end
 
 	#  get a function
-	function f(x,y,z) 
+	function f(x,y,z)
 		sin(sqrt(x^2+y^2)) - z^2
 	end
 
@@ -414,7 +414,7 @@ facts("testing 3D tensorProduct approximations") do
 	b3 = getBasis(rval3,bsp[3])
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact ApproXD.evalTensor3(b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3),atol=tol)
+	@fact ApproXD.evalTensor3(b3,b2,b1,mycoef) --> roughly(f(rval1,rval2,rval3),atol=tol)
 
 	rval1 = ub[1] - 0.9
 	rval2 = ub[2] - 0.09
@@ -422,15 +422,15 @@ facts("testing 3D tensorProduct approximations") do
 	b3 = getBasis(rval3,bsp[3])
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact ApproXD.evalTensor3(b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3),atol=tol)
+	@fact ApproXD.evalTensor3(b3,b2,b1,mycoef) --> roughly(f(rval1,rval2,rval3),atol=tol)
 
-	
+
 
 end
 
 
 facts("testing 4D tensorProduct approximations") do
-	
+
 	ndims = 4
 
 	# bounds
@@ -470,7 +470,7 @@ facts("testing 4D tensorProduct approximations") do
 	end
 
 	#  get a function
-	function f(x,y,z,w) 
+	function f(x,y,z,w)
 		sin(sqrt(x^2+y^2)) + (z-w)^3
 	end
 
@@ -497,7 +497,7 @@ facts("testing 4D tensorProduct approximations") do
 	b3 = getBasis(rval3,bsp[3])
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact ApproXD.evalTensor4(b4,b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3,rval4),atol=tol)
+	@fact ApproXD.evalTensor4(b4,b3,b2,b1,mycoef) --> roughly(f(rval1,rval2,rval3,rval4),atol=tol)
 
 	rval1 = ub[1] - 0.14
 	rval2 = ub[2] - 1.01
@@ -507,12 +507,12 @@ facts("testing 4D tensorProduct approximations") do
 	b3 = getBasis(rval3,bsp[3])
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact ApproXD.evalTensor4(b4,b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3,rval4),atol=tol)
+	@fact ApproXD.evalTensor4(b4,b3,b2,b1,mycoef) --> roughly(f(rval1,rval2,rval3,rval4),atol=tol)
 
 end
 
 facts("testing getTensorCoef performance on 4D") do
-	
+
 	ndims = 4
 
 	# bounds
@@ -552,7 +552,7 @@ facts("testing getTensorCoef performance on 4D") do
 	end
 
 	# #  get a function
-	# function f(x,y,z,w) 
+	# function f(x,y,z,w)
 	# 	sin(sqrt(x^2+y^2)) + (z-w)^3
 	# end
 
@@ -580,7 +580,7 @@ end
 
 if is_apple()
 	facts("testing getTensorCoef! performance on 4D") do
-		
+
 		ndims = 4
 
 		# bounds
@@ -620,7 +620,7 @@ if is_apple()
 		end
 
 		# #  get a function
-		# function f(x,y,z,w) 
+		# function f(x,y,z,w)
 		# 	sin(sqrt(x^2+y^2)) + (z-w)^3
 		# end
 
@@ -649,7 +649,7 @@ if is_apple()
 
 
 	facts("testing getTensorCoef performance on 5D") do
-		
+
 		ndims = 5
 
 		# bounds
@@ -689,7 +689,7 @@ if is_apple()
 		end
 
 		# #  get a function
-		# function f(x,y,z,w) 
+		# function f(x,y,z,w)
 		# 	sin(sqrt(x^2+y^2)) + (z-w)^3
 		# end
 
@@ -717,7 +717,7 @@ if is_apple()
 	end
 
 	facts("testing getTensorCoef performance on 10D") do
-		
+
 
 		# bounds
 	#      (nJ, ns, nz, ny, np, na, nh, ntau,  nJ, nt-1 )
@@ -760,7 +760,7 @@ if is_apple()
 		end
 
 		# #  get a function
-		# function f(x,y,z,w) 
+		# function f(x,y,z,w)
 		# 	sin(sqrt(x^2+y^2)) + (z-w)^3
 		# end
 
@@ -779,7 +779,7 @@ if is_apple()
 		end
 		println("timing: $(time()-t0)")
 
-		
+
 
 	end
 else

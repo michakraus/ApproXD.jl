@@ -15,12 +15,12 @@ facts("equally spaced interior knots constructor") do
 
 	b = BSpline(nKnots,deg,lb,ub)
 
-	@fact getNumKnots(b) + 2*deg => length(b.knots)
-	@fact b.degree => deg
-	@fact b.numKnots => nKnots
-	@fact b.lower => lb
-	@fact b.upper => ub
-	@fact sum(abs(ApproXD.getCoefs(b) .- b.knots[(deg+1):(length(b.knots)-deg)])) => 0.0
+	@fact getNumKnots(b) + 2*deg --> length(b.knots)
+	@fact b.degree --> deg
+	@fact b.numKnots --> nKnots
+	@fact b.lower --> lb
+	@fact b.upper --> ub
+	@fact sum(abs(ApproXD.getCoefs(b) .- b.knots[(deg+1):(length(b.knots)-deg)])) --> 0.0
 
 	@fact_throws BSpline(nKnots,deg,ub,lb)
 	@fact_throws BSpline(nKnots,-1,lb,ub)
@@ -30,10 +30,10 @@ facts("equally spaced interior knots constructor") do
 
 
 	# test that when x == upper/lower, first/last basis is 1
-	@fact nonzeros(getBasis(lb,b))[1] => 1.0
-	@fact nonzeros(getBasis(ub,b))[end] => 1.0
+	@fact nonzeros(getBasis(lb,b))[1] --> 1.0
+	@fact nonzeros(getBasis(ub,b))[end] --> 1.0
 
-	
+
 
 	# a special case
 	deg    = 1
@@ -44,7 +44,7 @@ facts("equally spaced interior knots constructor") do
 	points = collect(linspace(lb,ub,npoints))
 	b = BSpline(nKnots,deg,lb,ub)
 
-	@fact all(getBasis(points,b) .== speye(npoints)) => true
+	@fact all(getBasis(points,b) .== speye(npoints)) --> true
 end
 
 
@@ -58,8 +58,8 @@ facts("interior knots user supplied constructor") do
 
 	b = BSpline(myknots,deg)
 
-	@fact all(b.knots .== [ [lb for i=1:deg] ; myknots; [ub for i=1:deg] ]) => true
-	@fact getNumKnots(b) => length(myknots)
+	@fact all(b.knots .== [ [lb for i=1:deg] ; myknots; [ub for i=1:deg] ]) --> true
+	@fact getNumKnots(b) --> length(myknots)
 
 	knots = collect(linspace(ub,lb,11))
 	@fact_throws BSpline(knots,deg)
@@ -67,7 +67,7 @@ facts("interior knots user supplied constructor") do
 end
 
 facts("interpolate function with a kink") do
-	
+
 	deg = 3
 	lb = -1.0
 	ub = 1.0
@@ -85,7 +85,7 @@ facts("interpolate function with a kink") do
 	coef = pinv(B) * f.(points)
 
 	newpts = collect(linspace(lb,ub,100))
-	newvls = getBasis(newpts,b) * coef 
+	newvls = getBasis(newpts,b) * coef
 
 	@fact maxabs(newvls .- f.(newpts)) < 1e-10 --> true
 
@@ -272,9 +272,9 @@ facts("compare computed basis to R splineDesign()") do
 		b = BSpline(nKnots,deg,lb,ub)
 		bs = getBasis(points,b)
 
-		@fact size(bs) => (length(points),ApproXD.getNumCoefs(b))
+		@fact size(bs) --> (length(points),ApproXD.getNumCoefs(b))
 
-		@fact maximum(abs(full(bs)[:] .- Rbase[deg])) => roughly(0.0,atol=1e-4)
+		@fact maximum(abs(full(bs)[:] .- Rbase[deg])) --> roughly(0.0,atol=1e-4)
 
 	end
 
