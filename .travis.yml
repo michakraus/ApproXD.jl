@@ -8,6 +8,7 @@ julia:
 notifications:
   email: false
 script:
+  - julia -e 'Pkg.add("FactCheck")'
   - julia -e 'Pkg.clone(pwd())'
   - julia -e 'Pkg.test("ApproXD", coverage=true)'
 after_success:
