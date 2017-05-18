@@ -2,7 +2,7 @@
 # ApproXD.jl: Function Approximation in X Dimensions in Julia
 
 [![Build Status](https://travis-ci.org/michakraus/ApproXD.jl.png?branch=master)](https://travis-ci.org/michakraus/ApproXD.jl)
-[![Coverage Status](https://coveralls.io/github/michakraus/ApproXD.jl/badge.png)](https://coveralls.io/github/michakraus/ApproXD.jl)
+[![Coverage Status](https://coveralls.io/repos/github/michakraus/ApproXD.jl/badge.svg?branch=master)](https://coveralls.io/github/michakraus/ApproXD.jl?branch=master)
 
 
 [![2D approximation](https://dl.dropboxusercontent.com/u/109115/BSplines.jl/approx.png)]()
