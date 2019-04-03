@@ -136,4 +136,11 @@ The problem here is that :math:`\Phi` quickly becomes very large; in fact so lar
 
 
 
+Periodic Splines
+----------------
 
+Some care is needed if periodic splines are used. The reason is the following theorem from
+
+    J. H. Ahlberg, E. N. Nilson, J. L. Walsh. The Theory of Splines and Their Applications. Academic Press, 1967.
+
+Theorem 4.3.1 (p. 135): Periodic polynomial splines of interpolation of odd degree on a uniform mesh always exists. Periodic polynomial splines of even degree exist if the number of mesh intervals is odd.
