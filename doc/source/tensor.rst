@@ -13,7 +13,7 @@ Construction of ``FSpaceXD``
 
 	``coeff``: vector of approximating coefficients
 
-	``bs``: ``Dict`` of length ``ndim`` with a spline basis function for each dimension. 
+	``bs``: ``Dict`` of length ``ndim`` with a spline basis function for each dimension.
 
 
 Methods for ``FSpaceXD``
@@ -28,7 +28,7 @@ Methods for ``FSpaceXD``
 
 
 
-``FSpaceXD`` Useage Example
+``FSpaceXD`` Usage Example
 ----------------------------
 
 the example uses the :ref:`bspline-label` type.
@@ -78,7 +78,7 @@ the example uses the :ref:`bspline-label` type.
 	end
 
 	#  get a function
-	function f(x,y,z,w) 
+	function f(x,y,z,w)
 		sin(sqrt(x^2+y^2)) + (z-w)^3
 	end
 
@@ -91,14 +91,14 @@ the example uses the :ref:`bspline-label` type.
 
 	# setup the FSpace
 	fx = FSpaceXD(ndims,mycoef,bsp)
-	
-	rval1 = lb[1] + 0.3 
+
+	rval1 = lb[1] + 0.3
 	rval2 = lb[2] + 0.23
 	rval3 = lb[3] + 0.111
 	rval4 = lb[4] + 0.099
 	println("approx value = $(getValue(fx,[rval1,rval2,rval3,rval4]))")
 	println("true value = $(f(rval1,rval2,rval3,rval4))")
-	
+
 
 
 
@@ -106,7 +106,7 @@ the example uses the :ref:`bspline-label` type.
 Outline of the de Boor Algorithm
 --------------------------------
 
-The main features of this implementation are 
+The main features of this implementation are
 
 1. Avoids allocation of large tensor product
 2. Exploits sparsity of spline basis functions
@@ -120,7 +120,7 @@ For a point of interest :math:`x \in R^d`, form the tensor product of univariate
 	X_1 &= \{x_{11},x_{12},\dots,x_{1n(1)} \}\\
 	\dots \\
 	X_d &= \{x_{d1},x_{d2},\dots,x_{dn(d)} \} \\
-	\Phi(X_1,X_2,\dots,X_d) &= B_1(X_1) \otimes B_2(X_2) \otimes \dots \otimes B_d(X_d) 
+	\Phi(X_1,X_2,\dots,X_d) &= B_1(X_1) \otimes B_2(X_2) \otimes \dots \otimes B_d(X_d)
 
 Here the :math:`B`'s are spline basis functions of arbitrary degree, and they are evaluated on the entire grid in each dimension. **An important restriction** in this setup is that the resulting Bspline basis function matrices must be square, i.e. there must be as many evaluation points as there are resulting basis functions (given ``n`` evaluation points and a selected spline degree ``k``, this results in a predetermined number of spline knots and therefore basis functions.)
 
@@ -129,7 +129,7 @@ Once the coefficients are obtained, the function value is obtained via
 .. math::
 	\hat{f}(x_1,x_2,\dots,x_d) = c \times \Phi(x_1,x_2,\dots,x_d)
 
-The problem here is that :math:`\Phi` quickly becomes very large; in fact so large that it becomes infeasible to even allocate it in memory, let alone solve the system. The approach implmented here never forms :math:`\Phi` and uses a very efficient approach to to solve the system. The algorithm is devised and described in 
+The problem here is that :math:`\Phi` quickly becomes very large; in fact so large that it becomes infeasible to even allocate it in memory, let alone solve the system. The approach implmented here never forms :math:`\Phi` and uses a very efficient approach to to solve the system. The algorithm is devised and described in
 
 	C. De Boor. Efficient computer manipulation of tensor products. ACM Transactions on Mathematical Software (TOMS), 5(2):173–182, 1979.
 
