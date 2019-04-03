@@ -1,10 +1,11 @@
 
+module test_fspace
+using ApproXD
+using Test
 
 
-module test_approx
-using ApproXD, FactCheck
 
-facts("testing FSpaceXD") do
+@testset "testing FSpaceXD" begin
 	ndims = 4
 
 	# bounds
@@ -26,7 +27,7 @@ facts("testing FSpaceXD") do
 	nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 	# eval points
-	points = Dict(i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims)
+	points = Dict(i => collect(range(lb[i],stop = ub[i], length = npoints[i])) for i=1:ndims)
 
 	# set up ApproXD
 	bsp = Dict{Integer,BSpline}()
@@ -37,7 +38,7 @@ facts("testing FSpaceXD") do
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
 	for i=1:ndims
-		d[i] = full(getBasis(points[i],bsp[i]))
+		d[i] = Array(getBasis(points[i],bsp[i]))
 	end
 
 	# set of INVERSE basis functions
@@ -65,9 +66,9 @@ facts("testing FSpaceXD") do
 	rval2 = lb[2] + 0.23
 	rval3 = lb[3] + 0.111
 	rval4 = lb[4] + 0.099
-	println("approx value = $(getValue(fx,[rval1,rval2,rval3,rval4]))")
-	println("true value = $(f(rval1,rval2,rval3,rval4))")
-	@fact getValue(fx,[rval1,rval2,rval3,rval4]) --> roughly(f(rval1,rval2,rval3,rval4),atol=3e-3)
+	# println("approx value = $(getValue(fx,[rval1,rval2,rval3,rval4]))")
+	# println("true value = $(f(rval1,rval2,rval3,rval4))")
+	@test isapprox(getValue(fx,[rval1,rval2,rval3,rval4]), f(rval1,rval2,rval3,rval4),atol=3e-3)
 
 
 end

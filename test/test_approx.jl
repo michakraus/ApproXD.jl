@@ -1,12 +1,10 @@
 
-
 module test_approx
+using ApproXD
+using Test
 
 
-using ApproXD, FactCheck
-
-
-facts("testing coefficient estimation on random data") do
+@testset "testing coefficient estimation on random data" begin
 
 	d = Dict{Integer,Array{Float64,2}}()
 	for i=1:3
@@ -37,14 +35,14 @@ facts("testing coefficient estimation on random data") do
 	 res1 = krons * y
 	 myres = getTensorCoef(d,y)
 
-	 @fact sum(abs(res1 - myres)) --> roughly(0.0,atol=0.00001)
+	 @test isapprox(sum(abs.(res1 - myres)) , 0.0, atol=1e-10)
 
 end
 
 
 
 
-facts("testing computation of coefficients") do
+@testset "testing computation of coefficients" begin
 
 	# 3D approximation example
 
@@ -66,7 +64,7 @@ facts("testing computation of coefficients") do
 	nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:3)
 
 	# eval points
-	points = Dict(i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:3)
+	points = Dict(i => collect(range(lb[i],stop = ub[i],length = npoints[i])) for i=1:3)
 
 	# set up ApproXD
 	bsp = Dict(i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:3)
@@ -74,7 +72,11 @@ facts("testing computation of coefficients") do
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
 	for i=1:3
-		d[i] = full(getBasis(points[i],bsp[i]))
+		d[i] = Array(getBasis(points[i],bsp[i]))
+	end
+	ds = Dict()
+	for i=1:3
+		ds[i] = getBasis(points[i],bsp[i])
 	end
 
 	# set of INVERSE basis functions
@@ -106,30 +108,31 @@ facts("testing computation of coefficients") do
 	 tol = 5e-6
 
 	 # check coefs are the same
-	@fact maximum(abs(coef1 - mycoef)) --> roughly(0.0,atol=tol)
+	@test isapprox(maximum(abs,coef1 - mycoef), 0.0, atol=tol)
 
 	# approximate the function values on the original grid
 	# by using the basis in d. this is just reverse of getting coefs!
 	pred = getTensorCoef(d,mycoef)
-	@fact maximum(abs(pred - yvec)) --> roughly(0.0,atol=tol)
+	@test isapprox(maximum(abs,pred - yvec) , 0.0 , atol=tol)
 
 	t1 = reshape(pred,npoints[1],npoints[2],npoints[3])
-	@fact maximum(abs(t1 .- y)) --> roughly(0.0,atol=tol)
+	@test isapprox(maximum(abs,t1 .- y) , 0.0 , atol=tol)
 
 	# is that really doing what you want?
 	# you want B * coefs
 	B = kron(d[3],kron(d[2],d[1]))
 	pred2 = B * mycoef
-	@fact maximum(abs(pred2 - yvec)) --> roughly(0.0,atol=tol)
+	@test isapprox(maximum(abs,pred2 - yvec) , 0.0 , atol=tol)
 
 	# predict usign the predict function
-	pred = ApproXD.evalTensor3(d[3],d[2],d[1],mycoef)
-	@fact maximum(abs(pred - yvec)) --> roughly(0.0,atol=tol)
+	print(typeof(ds[3]))
+	pred = ApproXD.evalTensor3(ds[3],ds[2],ds[1],mycoef)
+	@test isapprox(maximum(abs,pred - yvec) , 0.0 , atol=tol)
 
 end
 
 
-facts("testing 1D spline evaluating off grid") do
+@testset "testing 1D spline evaluating off grid" begin
 
 
 	ndims = 1
@@ -153,7 +156,7 @@ facts("testing 1D spline evaluating off grid") do
 	nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 	# eval points
-	points = Dict(i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims)
+	points = Dict(i => collect(range(lb[i],stop = ub[i],length = npoints[i])) for i=1:ndims)
 
 	# set up ApproXD
 	bsp = Dict(i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims)
@@ -161,7 +164,7 @@ facts("testing 1D spline evaluating off grid") do
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
 	for i=1:ndims
-		d[i] = full(getBasis(points[i],bsp[i]))
+		d[i] = Array(getBasis(points[i],bsp[i]))
 	end
 
 	# set of INVERSE basis functions
@@ -192,11 +195,11 @@ facts("testing 1D spline evaluating off grid") do
 
 	rval1 = lb[1] + 0.03
 	b1 = getBasis(rval1,bsp[1])
-	@fact (mycoef' * b1)[1] --> roughly(f(rval1),atol=tol)
+	@test isapprox((mycoef' * b1)[1] , f(rval1), atol=1e-7)
 
 end
 
-facts("testing 1D spline extrapolation") do
+@testset "testing 1D spline extrapolation" begin
 
 
 	ndims = 1
@@ -220,7 +223,7 @@ facts("testing 1D spline extrapolation") do
 	nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 	# eval points
-	points = Dict(i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims)
+	points = Dict(i => collect(range(lb[i],stop = ub[i],length = npoints[i])) for i=1:ndims)
 
 	# set up ApproXD
 	bsp = Dict(i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims)
@@ -228,7 +231,7 @@ facts("testing 1D spline extrapolation") do
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
 	for i=1:ndims
-		d[i] = full(getBasis(points[i],bsp[i]))
+		d[i] = Array(getBasis(points[i],bsp[i]))
 	end
 
 	# set of INVERSE basis functions
@@ -257,20 +260,22 @@ facts("testing 1D spline extrapolation") do
 	# predict values out of grid
 	rval1 = ub[1] + eps()
 	b1 = getBasis(rval1,bsp[1])
-	@fact (mycoef' * b1)[1] --> roughly(f(rval1),atol=tol)
+	@test isapprox((mycoef' * b1)[1], f(rval1),atol=tol)
 
 	rval1 = ub[1] + 1.0
 	b1 = getBasis(rval1,bsp[1])
-	@fact (mycoef' * b1)[1] --> roughly(f(rval1),atol=tol)
+	@test isapprox((mycoef' * b1)[1], f(rval1),atol=tol)
+	# @test (mycoef' * b1)[1] --> roughly(f(rval1),atol=tol)
 
 	rval1 = ub[1] + 2.0
 	b1 = getBasis(rval1,bsp[1])
-	@fact (mycoef' * b1)[1] --> roughly(f(rval1),atol=tol)
+	@test isapprox((mycoef' * b1)[1], f(rval1),atol=tol)
+	# @test (mycoef' * b1)[1] --> roughly(f(rval1),atol=tol)
 
 end
 
 
-facts("testing 2D tensorProduct evaluating off grid") do
+@testset "testing 2D tensorProduct evaluating off grid" begin
 
 	# 2D approximation example
 
@@ -295,7 +300,7 @@ facts("testing 2D tensorProduct evaluating off grid") do
 	nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 	# eval points
-	points = Dict(i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims)
+	points = Dict(i => collect(range(lb[i],stop = ub[i], length = npoints[i])) for i=1:ndims)
 
 	# set up ApproXD
 	bsp = Dict(i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims)
@@ -303,7 +308,7 @@ facts("testing 2D tensorProduct evaluating off grid") do
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
 	for i=1:ndims
-		d[i] = full(getBasis(points[i],bsp[i]))
+		d[i] = Array(getBasis(points[i],bsp[i]))
 	end
 
 	# set of INVERSE basis functions
@@ -336,18 +341,18 @@ facts("testing 2D tensorProduct evaluating off grid") do
 	rval2 = lb[2] + 0.21
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact ApproXD.evalTensor2(b2,b1,mycoef) --> roughly(f(rval1,rval2),atol=tol)
+	@test isapprox(ApproXD.evalTensor2(b2,b1,mycoef), f(rval1,rval2),atol=tol)
 
 	rval1 = ub[1] - 0.3
 	rval2 = ub[2] - 0.11
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact ApproXD.evalTensor2(b2,b1,mycoef) --> roughly(f(rval1,rval2),atol=tol)
+	@test isapprox(ApproXD.evalTensor2(b2,b1,mycoef) ,f(rval1,rval2),atol=tol)
 
 end
 
 
-facts("testing 3D tensorProduct approximations") do
+@testset "testing 3D tensorProduct approximations" begin
 
 	# 3D approximation example
 
@@ -372,7 +377,7 @@ facts("testing 3D tensorProduct approximations") do
 	nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 	# eval points
-	points = Dict(i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims)
+	points = Dict(i => collect(range(lb[i],stop = ub[i],length = npoints[i])) for i=1:ndims)
 
 	# set up ApproXD
 	bsp = Dict(i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims)
@@ -380,8 +385,9 @@ facts("testing 3D tensorProduct approximations") do
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
 	for i=1:ndims
-		d[i] = full(getBasis(points[i],bsp[i]))
+		d[i] = Array(getBasis(points[i],bsp[i]))
 	end
+
 
 	# set of INVERSE basis functions
 	id = Dict{Integer,Array{Float64,2}}()
@@ -402,7 +408,6 @@ facts("testing 3D tensorProduct approximations") do
 
 	# get coefs using the function
 	mycoef = getTensorCoef(id,yvec)
-
 	 # testing tolerance
 	 tol = 1e-2
 
@@ -411,25 +416,24 @@ facts("testing 3D tensorProduct approximations") do
 	rval1 = lb[1] + 0.09
 	rval2 = lb[2] + 0.99
 	rval3 = lb[3] + 2.01
-	b3 = getBasis(rval3,bsp[3])
-	b2 = getBasis(rval2,bsp[2])
-	b1 = getBasis(rval1,bsp[1])
-	@fact ApproXD.evalTensor3(b3,b2,b1,mycoef) --> roughly(f(rval1,rval2,rval3),atol=tol)
+	b3 = Array(getBasis(rval3,bsp[3]))[:]
+	b2 = Array(getBasis(rval2,bsp[2]))[:]
+	b1 = Array(getBasis(rval1,bsp[1]))[:]
+	@test isapprox(ApproXD.evalTensor3(b3,b2,b1,mycoef),f(rval1,rval2,rval3),atol=tol)
 
 	rval1 = ub[1] - 0.9
 	rval2 = ub[2] - 0.09
 	rval3 = ub[3] - 1.01
-	b3 = getBasis(rval3,bsp[3])
-	b2 = getBasis(rval2,bsp[2])
-	b1 = getBasis(rval1,bsp[1])
-	@fact ApproXD.evalTensor3(b3,b2,b1,mycoef) --> roughly(f(rval1,rval2,rval3),atol=tol)
-
+	b3 = Array(getBasis(rval3,bsp[3]))[:]
+	b2 = Array(getBasis(rval2,bsp[2]))[:]
+	b1 = Array(getBasis(rval1,bsp[1]))[:]
+	@test isapprox(ApproXD.evalTensor3(b3,b2,b1,mycoef)[1],f(rval1,rval2,rval3),atol=tol)
 
 
 end
 
 
-facts("testing 4D tensorProduct approximations") do
+@testset "testing 4D tensorProduct approximations" begin
 
 	ndims = 4
 
@@ -452,7 +456,7 @@ facts("testing 4D tensorProduct approximations") do
 	nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 	# eval points
-	points = Dict(i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims)
+	points = Dict(i => collect(range(lb[i],stop = ub[i],length = npoints[i])) for i=1:ndims)
 
 	# set up ApproXD
 	bsp = Dict(i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims)
@@ -460,7 +464,7 @@ facts("testing 4D tensorProduct approximations") do
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
 	for i=1:ndims
-		d[i] = full(getBasis(points[i],bsp[i]))
+		d[i] = Array(getBasis(points[i],bsp[i]))
 	end
 
 	# set of INVERSE basis functions
@@ -497,7 +501,7 @@ facts("testing 4D tensorProduct approximations") do
 	b3 = getBasis(rval3,bsp[3])
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact ApproXD.evalTensor4(b4,b3,b2,b1,mycoef) --> roughly(f(rval1,rval2,rval3,rval4),atol=tol)
+	@test isapprox(ApproXD.evalTensor4(b4,b3,b2,b1,mycoef)[1] ,f(rval1,rval2,rval3,rval4),atol=tol)
 
 	rval1 = ub[1] - 0.14
 	rval2 = ub[2] - 1.01
@@ -507,11 +511,11 @@ facts("testing 4D tensorProduct approximations") do
 	b3 = getBasis(rval3,bsp[3])
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact ApproXD.evalTensor4(b4,b3,b2,b1,mycoef) --> roughly(f(rval1,rval2,rval3,rval4),atol=tol)
+	@test isapprox(ApproXD.evalTensor4(b4,b3,b2,b1,mycoef)[1] ,f(rval1,rval2,rval3,rval4),atol=tol)
 
 end
 
-facts("testing getTensorCoef performance on 4D") do
+@testset "testing getTensorCoef performance on 4D" begin
 
 	ndims = 4
 
@@ -534,7 +538,7 @@ facts("testing getTensorCoef performance on 4D") do
 	nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 	# eval points
-	points = Dict(i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims)
+	points = Dict(i => collect(range(lb[i],stop = ub[i],length = npoints[i])) for i=1:ndims)
 
 	# set up ApproXD
 	bsp = Dict(i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims)
@@ -542,7 +546,7 @@ facts("testing getTensorCoef performance on 4D") do
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
 	for i=1:ndims
-		d[i] = full(getBasis(points[i],bsp[i]))
+		d[i] = Array(getBasis(points[i],bsp[i]))
 	end
 
 	# set of INVERSE basis functions
@@ -575,11 +579,11 @@ facts("testing getTensorCoef performance on 4D") do
 		mycoef = getTensorCoef(id,yvec3);
 		mycoef = getTensorCoef(id,yvec4);
 	end
-	println("timing: $(time()-t0)")
+	@info("4D timing: $(time()-t0)")
 end
 
-if is_apple()
-	facts("testing getTensorCoef! performance on 4D") do
+if Sys.isapple()
+	@testset "testing getTensorCoef! performance on 4D" begin
 
 		ndims = 4
 
@@ -602,7 +606,7 @@ if is_apple()
 		nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 		# eval points
-		points = Dict(i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims)
+		points = Dict(i => collect(range(lb[i],stop = ub[i],length = npoints[i])) for i=1:ndims)
 
 		# set up ApproXD
 		bsp = Dict(i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims)
@@ -610,7 +614,7 @@ if is_apple()
 		# set of basis functions
 		d = Dict{Integer,Array{Float64,2}}()
 		for i=1:ndims
-			d[i] = full(getBasis(points[i],bsp[i]))
+			d[i] = Array(getBasis(points[i],bsp[i]))
 		end
 
 		# set of INVERSE basis functions
@@ -643,12 +647,12 @@ if is_apple()
 			getTensorCoef(id,yvec3);
 			getTensorCoef(id,yvec4);
 		end
-		println("timing: $(time()-t0)")
+		@info("4D timing preallocated: $(time()-t0)")
 	end
 
 
 
-	facts("testing getTensorCoef performance on 5D") do
+	@testset "testing getTensorCoef performance on 5D" begin
 
 		ndims = 5
 
@@ -671,7 +675,7 @@ if is_apple()
 		nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 		# eval points
-		points = Dict(i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims)
+		points = Dict(i => collect(range(lb[i],stop = ub[i],length = npoints[i])) for i=1:ndims)
 
 		# set up ApproXD
 		bsp = Dict(i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims)
@@ -679,7 +683,7 @@ if is_apple()
 		# set of basis functions
 		d = Dict{Integer,Array{Float64,2}}()
 		for i=1:ndims
-			d[i] = full(getBasis(points[i],bsp[i]))
+			d[i] = Array(getBasis(points[i],bsp[i]))
 		end
 
 		# set of INVERSE basis functions
@@ -712,11 +716,11 @@ if is_apple()
 			mycoef = getTensorCoef(id,yvec3);
 			mycoef = getTensorCoef(id,yvec4);
 		end
-		println("timing: $(time()-t0)")
+		@info("5D timing: $(time()-t0)")
 
 	end
 
-	facts("testing getTensorCoef performance on 10D") do
+	@testset "testing getTensorCoef performance on 10D" begin
 
 
 		# bounds
@@ -742,7 +746,7 @@ if is_apple()
 		nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 		# eval points
-		points = Dict(i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims)
+		points = Dict(i => collect(range(lb[i],stop = ub[i],length = npoints[i])) for i=1:ndims)
 
 		# set up ApproXD
 		bsp = Dict(i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims)
@@ -750,7 +754,7 @@ if is_apple()
 		# set of basis functions
 		d = Dict{Integer,Array{Float64,2}}()
 		for i=1:ndims
-			d[i] = full(getBasis(points[i],bsp[i]))
+			d[i] = Array(getBasis(points[i],bsp[i]))
 		end
 
 		# set of INVERSE basis functions
@@ -777,13 +781,13 @@ if is_apple()
 		for i=1:9
 			mycoef = getTensorCoef(id,yvec);
 		end
-		println("timing: $(time()-t0)")
+		@info("10D timing: $(time()-t0)")
 
 
 
 	end
 else
-	println("I am skipping performance tests on travis because too much memory required.")
+	@info("I am skipping performance tests on travis because too much memory required.")
 end
 
 
