@@ -1,7 +1,7 @@
 # ApproXD
 
-[![Build Status](https://travis-ci.org/floswald/ApproXD.jl.svg?branch=master)](https://travis-ci.org/floswald/ApproXD.jl)
-[![Codecov](https://codecov.io/gh/floswald/ApproXD.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/floswald/ApproXD.jl)
+[![Build Status](https://travis-ci.org/michakraus/ApproXD.jl.png?branch=master)](https://travis-ci.org/michakraus/ApproXD.jl)
+[![Coverage Status](https://coveralls.io/repos/github/michakraus/ApproXD.jl/badge.svg?branch=master)](https://coveralls.io/github/michakraus/ApproXD.jl?branch=master)
 
 
 * This package implements bspline and linear interpolation in julia
