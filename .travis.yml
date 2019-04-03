@@ -12,8 +12,4 @@ matrix:
   fast_finish: true
 notifications:
   email: false
-script:
-  - julia -e 'Pkg.add("FactCheck")'
-  - julia -e 'Pkg.clone(pwd())'
-  - julia -e 'Pkg.test("ApproXD", coverage=true)'
 codecov: true
