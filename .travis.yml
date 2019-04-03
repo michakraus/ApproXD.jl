@@ -16,5 +16,4 @@ script:
   - julia -e 'Pkg.add("FactCheck")'
   - julia -e 'Pkg.clone(pwd())'
   - julia -e 'Pkg.test("ApproXD", coverage=true)'
-after_success:
-  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+codecov: true
